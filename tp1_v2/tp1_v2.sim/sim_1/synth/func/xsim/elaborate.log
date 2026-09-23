@@ -1,0 +1,30 @@
+Vivado Simulator v2026.1
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+Running: D:/Programas/Vivado/2026.1/Vivado/bin/unwrapped/win64.o/xelab.exe --incr --debug typical --relax --mt 2 -L xil_defaultlib -L uvm -L unisims_ver -L secureip --snapshot alu_top_tb_func_synth xil_defaultlib.alu_top_tb xil_defaultlib.glbl -log elaborate.log 
+INFO: [XSIM 43-3493] Using 2 slave threads.
+Starting static elaboration
+Pass Through NonSizing Optimizer
+WARNING: [VRFC 10-2861] module 'alu_top' does not have a parameter named NB_DATA [D:/Proyectos/Facultad/TPsArquitecturadeComputadoras/tp1_v2/tp1_v2.srcs/sim_1/new/alu_ttb_1.sv:18]
+WARNING: [VRFC 10-2861] module 'alu_top' does not have a parameter named NB_OP_CODE [D:/Proyectos/Facultad/TPsArquitecturadeComputadoras/tp1_v2/tp1_v2.srcs/sim_1/new/alu_ttb_1.sv:19]
+Completed static elaboration
+Starting simulation data flow analysis
+Completed simulation data flow analysis
+Time Resolution for simulation is 1ps
+Compiling module unisims_ver.x_lut3_mux8
+Compiling module unisims_ver.LUT3
+Compiling module unisims_ver.FDRE_default
+Compiling module unisims_ver.LUT5
+Compiling module unisims_ver.LUT6
+Compiling module unisims_ver.x_lut2_mux4
+Compiling module unisims_ver.LUT2
+Compiling module unisims_ver.IBUF
+Compiling module unisims_ver.BUFG
+Compiling module unisims_ver.OBUF
+Compiling module unisims_ver.LUT4
+Compiling module unisims_ver.CARRY4
+Compiling module xil_defaultlib.alu_core
+Compiling module xil_defaultlib.alu_top
+Compiling module xil_defaultlib.alu_top_tb
+Compiling module xil_defaultlib.glbl
+Built simulation snapshot alu_top_tb_func_synth

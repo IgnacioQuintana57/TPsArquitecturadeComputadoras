@@ -1,0 +1,9 @@
+# compile verilog/system verilog design source files
+verilog xil_defaultlib  --include "../../../../../../../../../Programas/Vivado/2026.1/Vivado/data/rsb/busdef" \
+"alu_top_tb_func_synth.v" \
+
+sv xil_defaultlib  --include "../../../../../../../../../Programas/Vivado/2026.1/Vivado/data/rsb/busdef" \
+"../../../../../tp1_v2.srcs/sim_1/new/alu_ttb_1.sv" \
+
+# Do not sort compile order
+nosort

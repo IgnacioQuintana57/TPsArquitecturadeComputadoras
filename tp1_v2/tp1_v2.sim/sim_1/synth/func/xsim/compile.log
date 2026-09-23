@@ -1,0 +1,6 @@
+INFO: [VRFC 10-2263] Analyzing Verilog file "D:/Proyectos/Facultad/TPsArquitecturadeComputadoras/tp1_v2/tp1_v2.sim/sim_1/synth/func/xsim/alu_top_tb_func_synth.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module alu_core
+INFO: [VRFC 10-311] analyzing module alu_top
+INFO: [VRFC 10-311] analyzing module glbl
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "D:/Proyectos/Facultad/TPsArquitecturadeComputadoras/tp1_v2/tp1_v2.srcs/sim_1/new/alu_ttb_1.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module alu_top_tb

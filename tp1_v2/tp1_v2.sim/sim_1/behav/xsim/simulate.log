@@ -1,0 +1,19 @@
+Time resolution is 1 ps
+PASS ADD: 1 ADD 2 = 3
+ADD: 1 OK / 0 FALLO
+PASS SUB: 3 SUB 2 = 1
+SUB: 1 OK / 0 FALLO
+PASS AND: 6 AND 3 = 2
+AND: 1 OK / 0 FALLO
+PASS  OR: 4 OR 1 = 5
+ OR: 1 OK / 0 FALLO
+PASS XOR: 7 XOR 3 = 4
+XOR: 1 OK / 0 FALLO
+PASS SRA: 8 SRA 1 = 4
+SRA: 1 OK / 0 FALLO
+PASS SRL: 8 SRL 1 = 4
+SRL: 1 OK / 0 FALLO
+PASS NOR: 4 NOR 1 = 250
+NOR: 1 OK / 0 FALLO
+---- Resumen: 8 OK / 0 FALLO (esperados: 8 casos) ----
+$finish called at time : 326 ns : File "D:/Proyectos/Facultad/TPsArquitecturadeComputadoras/tp1_v2/tp1_v2.srcs/sim_1/new/alu_ttb_1.sv" Line 152

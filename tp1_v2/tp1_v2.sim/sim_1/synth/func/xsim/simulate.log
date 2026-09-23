@@ -1,0 +1,11 @@
+Time resolution is 1 ps
+FAIL  ADD (op=100000)  A=227=11100011  B=11=1011  -> resultado=0=0
+FAIL  SUB (op=100010)  A=212=11010100  B=246=11110110  -> resultado=0=0
+OK    AND (op=100100)  A=197=11000101  B=193=11000001  -> resultado=193=11000001
+OK    OR (op=100101)  A=67=1000011  B=168=10101000  -> resultado=235=11101011
+OK    XOR (op=100110)  A=205=11001101  B=23=10111  -> resultado=218=11011010
+OK    SRA (op=000011)  A=159=10011111  B=2=10  -> resultado=231=11100111
+OK    SRL (op=000010)  A=216=11011000  B=2=10  -> resultado=54=110110
+OK    NOR (op=100111)  A=58=111010  B=165=10100101  -> resultado=64=1000000
+---- Resumen: 6 OK / 2 FALLO ----
+$finish called at time : 456 ns : File "D:/Proyectos/Facultad/TPsArquitecturadeComputadoras/tp1_v2/tp1_v2.srcs/sim_1/new/alu_ttb_1.sv" Line 121
