@@ -23,9 +23,12 @@ module uart_rx #(
                      STOP  = 2'b11;
 
     reg [1:0]         state,  next_state;
-    reg [3:0]         s_reg,  s_next;      // contador de ticks (0..15)
-    reg [2:0]         n_reg,  n_next;      // contador de bits recibidos
-    reg [NB_DATA-1:0] b_reg,  b_next;      // shift register de datos
+    reg [3:0]         c_ticks;      // contador de ticks (0..15)
+    reg [3:0]         c_ticks_next;      // Proximo valor delcontador de ticks (0..15)
+    reg [2:0]         c_bits_procesados;      // contador de bits recibidos
+    reg [2:0]         c_bits_procesados_next;      // Proximo valor del contador de bits recibidos
+    reg [NB_DATA-1:0] dato_recibido;      // shift register de datos
+    reg [NB_DATA-1:0] next_dato_recibido;      // Proximo valor del shift register de datos
 
     // Sincronizador de 2 FF: rx viene de afuera (asincronico al clk)
     reg rx_meta, rx_sync;
@@ -36,69 +39,69 @@ module uart_rx #(
 
     // ---------------- Memoria ----------------
     always @(posedge i_clk) begin
-        if (i_reset) begin
+        if (i_reset) begin //se reseta todo a 0
             state <= IDLE;
-            s_reg <= 0;
-            n_reg <= 0;
-            b_reg <= 0;
-        end else begin
+            c_ticks <= 0;
+            c_bits_procesados <= 0;
+            dato_recibido <= 0;
+        end else begin // Setea las variables a sus proximos valores. Esto lo hace en cada clock, pero la actualizacion de los next lo hace segun el tick del baudrate.
             state <= next_state;
-            s_reg <= s_next;
-            n_reg <= n_next;
-            b_reg <= b_next;
+            c_ticks <= c_ticks_next;
+            c_bits_procesados <= c_bits_procesados_next;
+            dato_recibido <= next_dato_recibido;
         end
     end
 
     // ------- Logica de proximo estado y salidas -------
     always @(*) begin
         next_state = state;
-        s_next     = s_reg;
-        n_next     = n_reg;
-        b_next     = b_reg;
+        c_ticks_next     = c_ticks;
+        c_bits_procesados_next     = c_bits_procesados;
+        next_dato_recibido     = dato_recibido;
         o_rx_done  = 1'b0;
 
         case (state)
             IDLE:
                 if (~rx_sync) begin
                     next_state = START;
-                    s_next     = 0;
+                    c_ticks_next     = 0;
                 end
 
             START:
                 if (i_tick) begin
-                    if (s_reg == 7) begin
+                    if (c_ticks == 7) begin
                         next_state = DATA;
-                        s_next     = 0;
-                        n_next     = 0;
+                        c_ticks_next     = 0;
+                        c_bits_procesados_next     = 0;
                     end else
-                        s_next = s_reg + 1'b1;
+                        c_ticks_next = c_ticks + 1'b1;
                 end
 
             DATA:
                 if (i_tick) begin
-                    if (s_reg == 15) begin
-                        s_next = 0;
-                        b_next = {rx_sync, b_reg[NB_DATA-1:1]};
-                        if (n_reg == NB_DATA - 1)
+                    if (c_ticks == 15) begin
+                        c_ticks_next = 0;
+                     next_dato_recibido = {rx_sync, dato_recibido[NB_DATA-1:1]};
+                        if (c_bits_procesados == NB_DATA - 1)
                             next_state = STOP;
                         else
-                            n_next = n_reg + 1'b1;
+                            c_bits_procesados_next = c_bits_procesados + 1'b1;
                     end else
-                        s_next = s_reg + 1'b1;
+                        c_ticks_next = c_ticks + 1'b1;
                 end
 
             STOP:
                 if (i_tick) begin
-                    if (s_reg == SB_TICK - 1) begin
+                    if (c_ticks == SB_TICK - 1) begin
                         next_state = IDLE;
                         o_rx_done  = 1'b1;
                     end else
-                        s_next = s_reg + 1'b1;
+                        c_ticks_next = c_ticks + 1'b1;
                 end
 
             default: next_state = IDLE;   // fault recovery
         endcase
     end
 
-    assign o_data = b_reg;
+    assign o_data = dato_recibido;
 endmodule

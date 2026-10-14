@@ -28,6 +28,8 @@ module top #(
     wire [NB_DATA-1:0] a, b, alu_res;
     wire [NB_OP-1:0]   op;
 
+
+//Configuramos el modulo de baud rate. El mismo hace el calculo para saber cuantos CLKS contar.
     baud_rate_gen #(
         .CLK_FREQ (CLK_FREQ),
         .BAUD_RATE(BAUD_RATE)
@@ -37,6 +39,7 @@ module top #(
         .o_tick (tick)
     );
 
+// Modulo de recepcion UART
     uart_rx #(.NB_DATA(NB_DATA)) u_rx (
         .i_clk    (i_clk),
         .i_reset  (i_reset),
@@ -46,6 +49,7 @@ module top #(
         .o_data   (rx_data)
     );
 
+//Modulo de transmisión UART
     uart_tx #(.NB_DATA(NB_DATA)) u_tx (
         .i_clk     (i_clk),
         .i_reset   (i_reset),
@@ -56,6 +60,8 @@ module top #(
         .o_tx      (o_tx)
     );
 
+//Interfaz. Toma los valores trasmitidos, los "envia" a la ALU. Toma el resultado de la 
+//ALU y es el que inicia la transmision por el modulo de TX
     intf #(.NB_DATA(NB_DATA), .NB_OP(NB_OP)) u_intf (
         .i_clk     (i_clk),
         .i_reset   (i_reset),

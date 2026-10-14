@@ -60,3 +60,6 @@ LEDs 0–7 muestran el resultado. LEDs 13–15 muestran el estado de la interfaz
 
 La PC manda 3 bytes: `A`, `B`, `Op` (los 6 bits bajos). La FPGA responde con 1 byte.
 19200 baudios, 8N1.
+
+Además, el top transmite automáticamente el byte ASCII `5` (`0x35`) por `o_tx`
+aproximadamente cada 5 segundos como señal de actividad.

@@ -1,6 +1,8 @@
 `timescale 1ns / 1ps
 // ============================================================
 // Interface Circuit: une la UART con la ALU.
+// Basicamente, espera a tener todos los datos necesarios para luego ir a hacer 
+// el calculo a la ALU.
 // Reemplaza a los switches y botones del TP1:
 //   1er byte recibido -> registro A   (antes: boton 1)
 //   2do byte recibido -> registro B   (antes: boton 2)
