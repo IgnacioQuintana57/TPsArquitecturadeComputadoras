@@ -1,0 +1,7 @@
+# Todo lo que genera Vivado se puede regenerar con scripts/create_project.tcl
+vivado/
+.Xil/
+*.jou
+*.log
+*.str
+__pycache__/
