@@ -13,8 +13,9 @@ Repositorio de los TPs de **Arquitectura de Computadoras** (FCEFyN, UNC). Placa:
    - problemas encontrados y cómo se resolvieron;
    - dudas abiertas.
 2. **Informe final** (`tp_final/docs/informe_final.md`): es el documento que se **entrega al profesor**. Se va completando mientras avanzamos, no al final. Tiene que reflejar todo lo hecho y todo lo decidido: arquitectura, decisiones de diseño con su justificación, respuestas a las preguntas de la consigna, resultados de simulación, y análisis de clock/tiempos cuando lleguemos. Se redacta de forma prolija, en español, pensando en que lo lee alguien que no estuvo en las charlas.
-3. **Orden de trabajo**: se entiende → se decide → se documenta → recién ahí se escribe código. Si algo cambia una decisión previa, se actualizan ambos documentos (y se anota que la decisión anterior fue reemplazada y por qué).
-4. Claude actualiza la bitácora y el informe **sin que se lo pidan**, en el mismo turno en que ocurre el cambio.
+3. **Un doc por módulo** (`tp_final/docs/modulos/<modulo>.md`, p. ej. `if_stage.md`, `id_stage.md`): uno por cada etapa o pieza importante, no por cada archivo `.v` (`imem` y `pc` van dentro de `if_stage.md`). Se crea junto con el módulo, usando `tp_final/docs/modulos/_plantilla.md`. Es la **fuente de detalle**; el informe final lo resume y enlaza, y la bitácora solo anota que se creó/actualizó, sin repetir el contenido.
+4. **Orden de trabajo**: se entiende → se decide → se documenta → recién ahí se escribe código. Si algo cambia una decisión previa, se actualizan ambos documentos (y se anota que la decisión anterior fue reemplazada y por qué).
+5. Claude actualiza la bitácora y el informe **sin que se lo pidan**, en el mismo turno en que ocurre el cambio.
 
 ## Estructura
 
@@ -33,7 +34,7 @@ tp_final/
 ├── tp_final.xpr   proyecto Vivado (ya creado, vacío)
 ├── rtl/           (prevista) Verilog sintetizable: if_stage.v, imem.v, rv_defs.vh, ...
 ├── sim/           (prevista) testbenches: tb_if_stage.v, ...
-└── docs/          bitacora.md e informe_final.md (ver LEY DE ORO)
+└── docs/          bitacora.md, informe_final.md y modulos/ (ver LEY DE ORO)
 ```
 
 > La ubicación definitiva de `rtl/` y `sim/` (dentro de `tp_final/` o fuera) todavía no está decidida; cuando se decida, se anota en la bitácora y se corrige acá. La etapa IF y `rv_defs.vh` **no existen aún** en el repo: se escriben de cero.

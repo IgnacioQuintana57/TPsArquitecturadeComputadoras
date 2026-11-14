@@ -61,3 +61,20 @@ Formato de entrada: `## NNN — fecha — título`.
 
 **Pendiente**
 - Decidir ubicación de `rtl/` y `sim/`.
+
+---
+
+## 004 — 2026-11-14 — Un documento por módulo
+
+**Discutido**
+- La bitácora (cronológica) y el informe (para el profesor) no sirven para consultar rápido cómo quedó un módulo mientras se trabaja en el siguiente. Además, explicar cada módulo con palabras propias ayuda a entenderlo y a preparar la defensa.
+
+**Decidido**
+- Un `.md` por etapa/pieza importante en `tp_final/docs/modulos/` (no por cada `.v`; `imem` y `pc` van dentro de `if_stage.md`).
+- Sin duplicar: el doc del módulo es la fuente de detalle; el informe final resume y enlaza; la bitácora solo registra la creación/actualización.
+- Todos usan la misma plantilla (qué hace, interfaz, comportamiento y decisiones, cómo se prueba, errores comunes, preguntas de defensa).
+- Alternativa descartada: solo bitácora + informe (no sirve de consulta técnica por módulo).
+
+**Archivos**
+- `CLAUDE.md` — **modificado**: nuevo punto 3 en la LEY DE ORO (doc por módulo), renumerados los siguientes; `docs/` ahora lista `modulos/`.
+- `tp_final/docs/modulos/_plantilla.md` — **creado**.
