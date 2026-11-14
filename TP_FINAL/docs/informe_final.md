@@ -95,7 +95,7 @@ Cada decisión indica qué se eligió, por qué y qué alternativas se descartar
 
 ### 4.1 Etapa IF
 
-`if_stage` mantiene el PC (registro de 32 bits, reset sincrónico a 0) y calcula el próximo valor: PC+4, el destino de un salto, o se queda quieto si `i_enable = 0`. La memoria de programa (`imem`) es un módulo aparte (D6). Prioridad: reset > enable > salto > PC+4 (D7). Detalle completo, interfaz y plan de pruebas: `docs/modulos/if_stage.md`. Estado: código y testbench escritos; simulación en XSim con las 8 pruebas (17 comprobaciones) superada (`TEST OK`).
+`if_stage` mantiene el PC (registro de 32 bits, reset sincrónico a 0) y calcula el próximo valor: PC+4, el destino de un salto, o se queda quieto si `i_enable = 0`. La memoria de programa (`imem`) es un módulo aparte (D6). Prioridad: reset > enable > salto > PC+4 (D7). Detalle completo, interfaz y plan de pruebas: `docs/modulos/if_stage.md`. Estado: código y testbench escritos; simulación en XSim con las 8 pruebas (17 comprobaciones) superada (`TEST OK`). La `imem` (256 × 32, lectura asincrónica, escritura sincrónica, inicializada en cero) también está escrita y superó sus 8 pruebas (15 comprobaciones, `TEST OK`). Falta el latch `if_id`.
 ### 4.2 Etapa ID — *(pendiente)*
 ### 4.3 Etapa EX — *(pendiente)*
 ### 4.4 Etapa MEM — *(pendiente)*

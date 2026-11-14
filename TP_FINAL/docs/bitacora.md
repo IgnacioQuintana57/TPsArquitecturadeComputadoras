@@ -262,3 +262,21 @@ Formato de entrada: `## NNN — fecha — título`.
 **Pendiente**
 - Correr `tb_imem` en Vivado (Set as Top → Run Behavioral Simulation) y anotar el resultado (esperado: `TEST OK`).
 - Siguiente módulo: latch `if_id` (o el bloque ID: `regfile`, `imm_gen`, `control_unit`), a definir.
+
+---
+
+## 014 — 2026-11-14 — `imem` simulada: TEST OK
+
+**Comandos / verificación**
+- Tadeo corrió en Vivado 2026.1: `tb_imem` como top → *Run Behavioral Simulation* (XSim).
+- Resultado: 15 comprobaciones `ok` (8 pruebas) y `TEST OK: imem paso todas las pruebas`. `$finish` a los 77 ns. Compilaron solo `imem.v` y `tb_imem.v`.
+- Aviso en el log: `boost::filesystem::remove ... simulate.log ... está siendo utilizado por otro proceso`. Ocurrió al relanzar con la simulación anterior abierta; Vivado hizo `close_sim` y relanzó solo. Sin consecuencias.
+
+**Archivos**
+- `tp_final/docs/modulos/if_stage.md` — **modificado**: estado y resultado de `tb_imem`.
+- `tp_final/docs/informe_final.md` — **modificado**: estado de 4.1.
+
+**Estado**: `if_stage` e `imem` listos y probados. La etapa IF se cierra con el latch `if_id`.
+
+**Pendiente**
+- Latch `if_id`: explicar qué guarda y cómo actúan `i_enable`/`i_flush`/`valid` antes de escribirlo.

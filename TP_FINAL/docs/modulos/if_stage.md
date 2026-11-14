@@ -2,7 +2,7 @@
 
 > Archivos fuente: `if_stage.v` (**escrito**) e `imem.v` (**escrito**; módulos separados, ver D6) · Testbenches: `tb_if_stage.v` (**escrito**), `tb_imem.v` (**escrito**)
 > Ubicación: `tp_final/proyecto_vivado/tp_final_arqui/tp_final_arqui.srcs/{sources_1,sim_1}/new/`
-> Estado: **`if_stage` escrito y probado en simulación (TEST OK)**; `imem` escrita, **simulación de `tb_imem` pendiente**
+> Estado: **`if_stage` escrito y probado en simulación (TEST OK)**; `imem` escrita y probada (TEST OK). Falta el latch `if_id` para cerrar la etapa IF
 
 ## 1. Qué hace y por qué existe
 
@@ -131,7 +131,7 @@ Decisiones de IF (a confirmar al definir puertos):
 | 7 | Cajones 0 y 255 | funcionan (bordes) |
 | 8 | `i_we=1` y dato listos, pero antes del flanco | todavía el valor viejo; tras el flanco, el nuevo (sincrónica) |
 
-**Resultado**: *(pendiente: escrito pero todavía no simulado)*. Para correrlo: `tb_imem` → clic derecho → *Set as Top* → *Run Behavioral Simulation*; debe terminar en `TEST OK: imem paso todas las pruebas`.
+**Resultado** (2026-11-14, Vivado 2026.1 / XSim, PC de Tadeo): **`TEST OK: imem paso todas las pruebas`**. Las 15 comprobaciones dieron `ok` (8 pruebas) y la simulación terminó a los 77 ns. Para repetirlo: `tb_imem` → clic derecho → *Set as Top* → *Run Behavioral Simulation*.
 
 ## 5. Errores comunes y problemas que tuvimos
 
