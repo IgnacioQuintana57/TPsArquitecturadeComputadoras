@@ -5,3 +5,4 @@ vivado/
 *.log
 *.str
 __pycache__/
+.atl

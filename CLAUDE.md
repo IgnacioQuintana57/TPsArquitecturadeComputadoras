@@ -2,26 +2,41 @@
 
 Repositorio de los TPs de **Arquitectura de Computadoras** (FCEFyN, UNC). Placa: **Basys 3** (Artix-7), herramienta: **Vivado**. Lo trabajan dos estudiantes; cualquiera de los dos puede abrir una sesión con Claude, así que este archivo tiene que alcanzar para entender el proyecto sin más explicaciones.
 
+## LEY DE ORO: todo queda documentado
+
+**Nada de lo que se discuta o se decida puede quedar solo en el chat.** Antes de cerrar cada paso, Claude lo registra por escrito. Sin registro, el paso no está terminado.
+
+1. **Bitácora** (`tp_final/docs/bitacora.md`): registro cronológico, una entrada por paso. Cada entrada lleva fecha y anota:
+   - qué se discutió y qué se decidió (con el **porqué** y las alternativas descartadas);
+   - cada archivo **creado, modificado, movido o borrado**, con una línea de qué cambió y por qué;
+   - comandos importantes que se corrieron y su resultado (tests, simulaciones, síntesis);
+   - problemas encontrados y cómo se resolvieron;
+   - dudas abiertas.
+2. **Informe final** (`tp_final/docs/informe_final.md`): es el documento que se **entrega al profesor**. Se va completando mientras avanzamos, no al final. Tiene que reflejar todo lo hecho y todo lo decidido: arquitectura, decisiones de diseño con su justificación, respuestas a las preguntas de la consigna, resultados de simulación, y análisis de clock/tiempos cuando lleguemos. Se redacta de forma prolija, en español, pensando en que lo lee alguien que no estuvo en las charlas.
+3. **Orden de trabajo**: se entiende → se decide → se documenta → recién ahí se escribe código. Si algo cambia una decisión previa, se actualizan ambos documentos (y se anota que la decisión anterior fue reemplazada y por qué).
+4. Claude actualiza la bitácora y el informe **sin que se lo pidan**, en el mismo turno en que ocurre el cambio.
+
 ## Estructura
 
 | Carpeta | Qué es | ¿Se puede modificar? |
 |---|---|---|
 | `tp1_v2/` | **TP1**: ALU parametrizable (`alu_core.sv` + `alu_top.sv` con botones/switches). Proyecto Vivado completo. | **NO** |
 | `tp2_uart/` | **TP2**: UART (`uart_rx.v`, `uart_tx.v`, `baud_rate_gen.v`), FSM `intf.v` que recibe A, B, Op por UART y devuelve el resultado de la ALU, script `scripts/test_uart.py`. (`tp2_uart/tp2_uart/` es una copia idéntica.) | **NO** |
-| `tp_final/` | **Trabajo final**: procesador RISC-V con pipeline + Debug Unit + software de PC. | Sí, es lo que estamos haciendo |
+| `tp_final/` | **Trabajo final**: proyecto Vivado `tp_final.xpr` (vacío al 2026-11-14) + RTL, simulación y documentación. | Sí, es lo que estamos haciendo |
+| `software_tpfinal/` | **Software de PC del trabajo final**: ensamblador `asm.py`, `test_asm.py`, `ejemplos/`, `README.md`. | Sí |
+| `tp_final_referencia.zip` | Material de referencia ajeno al repo. **No se copia código de ahí**: el procesador se hace desde cero (ver `bitacora.md`, entrada 001). | No |
 
-Estructura prevista de `tp_final/`:
+Estructura actual y prevista de `tp_final/`:
 
 ```
 tp_final/
-├── rtl/        Verilog sintetizable (if_stage.v, imem.v, rv_defs.vh, ...)
-├── sim/        testbenches (tb_if_stage.v, ...)
-├── scripts/    create_project.tcl (genera el proyecto Vivado en vivado/, que NO se versiona)
-├── docs/       documentación del informe
-└── software/   ensamblador (asm.py) e interfaz de PC
+├── tp_final.xpr   proyecto Vivado (ya creado, vacío)
+├── rtl/           (prevista) Verilog sintetizable: if_stage.v, imem.v, rv_defs.vh, ...
+├── sim/           (prevista) testbenches: tb_if_stage.v, ...
+└── docs/          bitacora.md e informe_final.md (ver LEY DE ORO)
 ```
 
-> A la fecha de crear este archivo, `rtl/`, `sim/`, `scripts/` y `docs/` (con la etapa IF ya hecha) estaban en un zip pendiente de copiar al repo.
+> La ubicación definitiva de `rtl/` y `sim/` (dentro de `tp_final/` o fuera) todavía no está decidida; cuando se decida, se anota en la bitácora y se corrige acá. La etapa IF y `rv_defs.vh` **no existen aún** en el repo: se escriben de cero.
 
 ## Consigna del trabajo final
 
@@ -66,17 +81,17 @@ tp_final/
 
 ## Plan de trabajo
 
-1. **Procesador en simulación** (compañero): IF ✅ (hecha y probada) · ID · EX · MEM · WB · unidad de riesgos.
+1. **Procesador en simulación**: IF · ID · EX · MEM · WB · unidad de riesgos.
 2. **Debug Unit + protocolo UART** (reusa TP2).
-3. **Software de PC** (Tadeo): primero el ensamblador `tp_final/software/asm.py`, después la interfaz.
+3. **Software de PC** (Tadeo): primero el ensamblador `software_tpfinal/asm.py`, después la interfaz.
 4. **Clock, análisis de tiempos y documentación.**
 
 ### Estado del ensamblador
 
-`tp_final/software/asm.py` tiene hecha la infraestructura (lectura, comentarios, etiquetas, registros, inmediatos, dos pasadas, chequeo de rangos, salida `.hex` y listado). Las funciones `encode_r/i/s/b/u/j` y `expand_pseudo` están en `TODO` **a propósito**: Tadeo las implementa una por una (orden: R, I, S, U, J, B, después pseudoinstrucciones). Explicar cada una antes de escribirla, no completarlas de golpe, y correr los tests después de cada paso:
+`software_tpfinal/asm.py` tiene hecha la infraestructura (lectura, comentarios, etiquetas, registros, inmediatos, dos pasadas, chequeo de rangos, salida `.hex` y listado). Las funciones `encode_r/i/s/b/u/j` y `expand_pseudo` están en `TODO` **a propósito**: Tadeo las implementa una por una (orden: R, I, S, U, J, B, después pseudoinstrucciones). Explicar cada una antes de escribirla, no completarlas de golpe, y correr los tests después de cada paso:
 
 ```
-cd tp_final/software
+cd software_tpfinal
 py -m unittest -v test_asm
 ```
 
@@ -93,5 +108,5 @@ py -m unittest -v test_asm
 - **Comentarios en español.**
 - **Verilog-2001 en los `.v`** (nada de SystemVerilog: sin `logic`, `always_ff`, `always_comb`, etc.). Los `.sv` heredados del TP1 se dejan como están.
 - Constantes compartidas (opcodes, códigos de ALU) en `rv_defs.vh`.
-- Lo que genera Vivado (`vivado/`, `.Xil/`, `*.jou`, `*.log`) no se versiona: el proyecto se regenera con `scripts/create_project.tcl`.
+- Lo que genera Vivado (`vivado/`, `.Xil/`, `*.jou`, `*.log`) no se versiona. (Hoy el proyecto `tp_final/tp_final.xpr` se creó a mano desde Vivado; si más adelante se genera con un script `create_project.tcl`, anotarlo acá.)
 - **Python**: solo librería estándar de Python 3. En la PC de Tadeo `python` apunta a Python 2.7; usar **`py`**.
