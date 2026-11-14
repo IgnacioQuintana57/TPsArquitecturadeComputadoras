@@ -111,3 +111,89 @@ Formato de entrada: `## NNN — fecha — título`.
 **Pendiente**
 - El `.gitignore` de la raíz sigue ignorando `vivado/` y no `proyecto_vivado/`: revisar cuando haya archivos generados.
 - Actualizar en `CLAUDE.md` la estructura de carpetas real (`tp_final/cli/`, `tp_final/docs/`, `tp_final/proyecto_vivado/`).
+
+---
+
+## 007 — 2026-11-14 — Arquitectura del procesador: módulos, conexiones e interfaces
+
+**Discutido**
+- Antes de escribir IF, se acordó cómo se estructura todo el procesador: jerarquía de módulos, conexiones entre etapas e interfaz de `cpu_core`.
+
+**Decidido** (detalle y justificación completa en `informe_final.md`, secciones 2 y 3: D2–D5)
+- `cpu_core` contiene: `if_stage`, `if_id`, `id_stage`, `id_ex`, `ex_stage`, `ex_mem`, `mem_stage`, `mem_wb`, `wb_stage`, `forwarding_unit`, `hazard_unit`. Constantes en `rv_defs.vh`.
+- **Los latches son módulos propios** (D2). Por qué: se ve qué viaja entre etapas; la Debug Unit los expone en un solo lugar (la consigna pide enviarlos a la PC); `stall`/`flush` se aplican en un único sitio; las etapas quedan como lógica combinacional pura y testeable; `pc`/`valid` siguen un patrón único. Alternativa descartada: registros embebidos en cada etapa (menos archivos, pero mezcla lógica y estado y dispersa el control).
+- Interfaz de `cpu_core`: control (`i_clk`, `i_reset`, `i_enable`), carga de imem, lectura de debug (registros y memoria), estado (`o_pc`, `o_halted`, `o_pipeline_empty`, latches).
+- Orden de construcción: `rv_defs.vh` → IF → regfile e `imm_gen` → control → ALU y EX → MEM → WB → riesgos → `cpu_core`.
+
+**Abierto**
+- D5: etapa donde se resuelve el branch (EX o ID). Se decide al llegar a la unidad de riesgos.
+
+**Archivos**
+- `tp_final/docs/informe_final.md` — **modificado**: sección 2 (arquitectura e interfaz) y decisiones D2–D5.
+
+---
+
+## 008 — 2026-11-14 — Concepto de IF e `imem` + ilustración
+
+**Discutido**
+- Se explicó la etapa IF (PC, `imem`, PC+4, mux de próximo PC) y su comportamiento ciclo a ciclo.
+- Aclaración que costó entender y conviene no olvidar: **`imem` = Instruction Memory** (memoria de programa; no es una "memoria instantánea"). "Asincrónica" describe solo su lectura. Se usó la analogía del armario con 256 cajones.
+- Por qué se indexa con `pc[9:2]`: el PC cuenta bytes, la `imem` cuenta palabras; dividir por 4 = descartar los 2 bits bajos.
+
+**Decidido**
+- Documentar el concepto con una imagen para no olvidarlo.
+
+**Archivos**
+- `tp_final/docs/img/imem.svg` — **creado**: ilustración de la `imem` (PC → cajón → instrucción).
+- `tp_final/docs/modulos/if_stage.md` — **creado** desde la plantilla, con el concepto, la imagen y el ciclo a ciclo. Estado: en diseño; interfaz y tests pendientes.
+
+**Pendiente**
+- Definir los puertos de `if_stage` y confirmar las decisiones de IF (PC en reset, escritura sincrónica de `imem`).
+
+---
+
+## 009 — 2026-11-14 — Interfaz de IF y `imem` como módulo separado
+
+**Discutido**
+- Se propuso que `if_stage` tuviera puertos de escritura de la `imem`. El usuario preguntó por qué IF tendría que escribir instrucciones: no debería. Las escribe la Debug Unit (carga por UART sin resintetizar).
+- Se comparó A (`imem` dentro de IF) vs B (`imem` módulo aparte).
+
+**Decidido** (D6 en `informe_final.md`)
+- **B**: `imem` es un módulo propio. Principio del grupo: cada módulo lo más chico posible, con una responsabilidad clara. `if_stage` queda solo con PC, mux de próximo PC y sumador +4.
+- Puertos de `if_stage`: `i_clk`, `i_reset`, `i_enable`, `i_pc_src`, `i_pc_target`, `o_pc`. No recibe la instrucción.
+- Puertos de `imem`: `i_clk`, `i_we`, `i_waddr[7:0]`, `i_wdata[31:0]`, `i_raddr[7:0]`, `o_rdata[31:0]`. Lectura asincrónica, escritura sincrónica, ignora `i_enable`.
+- `cpu_core` conecta `o_pc[9:2]` → `imem.i_raddr` y `imem.o_rdata` → `if_id`.
+- Un solo `i_enable`; sin salida PC+4 (EX suma 4 a `o_pc`); reset sincrónico; el `valid` lo genera el latch `if_id`.
+
+**Archivos**
+- `tp_final/docs/informe_final.md` — **modificado**: jerarquía (2.1) con `imem` aparte; decisión D6.
+- `tp_final/docs/modulos/if_stage.md` — **modificado**: encabezado y sección 2 (interfaz de `if_stage` e `imem`, conexión en `cpu_core`).
+
+**Pendiente**
+- Escribir `if_stage.v` e `imem.v` y sus testbenches (todavía no se escribió código).
+
+---
+
+## 010 — 2026-11-14 — Archivos creados por Tadeo y primer código: `if_stage`
+
+**Revisado**
+- Tadeo creó desde Vivado los 19 archivos de Design Sources y los 14 testbenches de la lista (en `tp_final/proyecto_vivado/tp_final_arqui/tp_final_arqui.srcs/{sources_1,sim_1}/new/`). Casi todos vacíos.
+- Dos tenían la plantilla de Vivado: `tb_dmem.v` (válido) y `ex_mem.v`, que tenía `module (` **sin nombre** (error de sintaxis). Un error así rompe la compilación de todo el proyecto, aunque el módulo no se use.
+- Lenguaje: los archivos son `.v`, o sea Verilog-2001 (D4 se mantiene).
+
+**Decidido**
+- D7: prioridad en IF reset > enable > salto > PC+4 (justificación en `informe_final.md`). Implica una regla para la `hazard_unit`: no hacer stall cuando hay salto tomado.
+
+**Archivos**
+- `.../sources_1/new/if_stage.v` — **escrito**: PC con reset sincrónico, estilo `_reg`/`_next`, dos `always`.
+- `.../sim_1/new/tb_if_stage.v` — **escrito**: 8 pruebas autochequeables (ver `docs/modulos/if_stage.md`, sección 4).
+- `.../sources_1/new/ex_mem.v` — **modificado**: se vació (quedó en blanco) para quitar el error de sintaxis; se rellenará cuando llegue el latch EX/MEM.
+- `tp_final/docs/modulos/if_stage.md` — **modificado**: estado, ubicación y sección 4 (cómo se prueba).
+- `tp_final/docs/informe_final.md` — **modificado**: sección 4.1 y decisión D7.
+
+**Comandos / verificación**
+- **No se pudo simular**: esta PC no tiene Vivado, `iverilog` ni `xsim`. El código y el testbench se revisaron a mano, pero **no se ejecutaron**.
+
+**Pendiente**
+- Correr `tb_if_stage` en Vivado y anotar el resultado (esperado: `TEST OK`).
+- Escribir `imem.v` y `tb_imem.v`.
