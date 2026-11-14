@@ -17,6 +17,10 @@ Repositorio de los TPs de **Arquitectura de Computadoras** (FCEFyN, UNC). Placa:
 4. **Orden de trabajo**: se entiende → se decide → se documenta → recién ahí se escribe código. Si algo cambia una decisión previa, se actualizan ambos documentos (y se anota que la decisión anterior fue reemplazada y por qué).
 5. Claude actualiza la bitácora y el informe **sin que se lo pidan**, en el mismo turno en que ocurre el cambio.
 
+## Git: los commits los hace solo el usuario
+
+Claude **nunca** hace `git commit`, `git push`, ni crea ramas por su cuenta. Puede dejar los cambios listos y sugerir un mensaje (conventional commit), pero el commit lo ejecuta el usuario.
+
 ## Estructura
 
 | Carpeta | Qué es | ¿Se puede modificar? |

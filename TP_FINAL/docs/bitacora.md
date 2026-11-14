@@ -78,3 +78,36 @@ Formato de entrada: `## NNN — fecha — título`.
 **Archivos**
 - `CLAUDE.md` — **modificado**: nuevo punto 3 en la LEY DE ORO (doc por módulo), renumerados los siguientes; `docs/` ahora lista `modulos/`.
 - `tp_final/docs/modulos/_plantilla.md` — **creado**.
+
+---
+
+## 005 — 2026-11-14 — Revisión del proyecto Vivado de Tadeo
+
+**Revisado** (`tp_final/proyecto_vivado/tp_final_arqui/tp_final_arqui.xpr`, Vivado 2025.2)
+- Parte correcta: `xc7a35tcpg236-1` (Basys 3). Sin `BoardPart` (no hace falta).
+- Proyecto **vacío**: sin fuentes de diseño, sin constraints (`constrs_1`), sin testbenches (`sim_1`). Simulador: XSim.
+- El `.xpr` guarda en su cabecera una ruta absoluta vieja de la PC de Tadeo; es inofensivo, Vivado resuelve el resto con rutas relativas.
+- Reorganización del repo hecha por Tadeo: ensamblador en `tp_final/cli/`, PDF de la consigna en `tp_final/docs/`, proyecto en `tp_final/proyecto_vivado/`. Ya no existen `software_tpfinal/` ni `tp_final/tp_final.xpr`.
+
+**Falta / a corregir**
+- El `.gitignore` de la raíz ignora `vivado/`, pero la carpeta se llama `proyecto_vivado/`: lo que genera Vivado (`*.runs/`, `*.sim/`, `*.gen/`, `*.ip_user_files/`, `*.cache/`) se estaría versionando.
+- No hay carpeta de fuentes (`rtl/`, `sim/`, `constr/`) ni decisión sobre dónde viven.
+- `CLAUDE.md` todavía menciona `software_tpfinal/` y la estructura vieja.
+
+**Pendiente de decisión**
+- Fuentes fuera del proyecto Vivado (`tp_final/rtl`, `sim`, `constr`) agregadas con "Add sources" *sin copiar*, para que git versione el código y no los archivos generados.
+
+---
+
+## 006 — 2026-11-14 — Fuentes dentro del proyecto Vivado y commits manuales
+
+**Decidido**
+- **Por ahora el código vive dentro del proyecto Vivado** (`proyecto_vivado/tp_final_arqui/`), con "Copy sources into project" por defecto. Se descarta, por ahora, la estructura `rtl/`, `sim/`, `constr/` fuera del proyecto. Motivo: simplicidad al arrancar. Si más adelante genera problemas (git, merges, dos PCs), se saca el código afuera y se anota acá.
+- **Los commits los hace solo el usuario.** Claude no hace `git commit`/`push` ni crea ramas; puede sugerir un mensaje.
+
+**Archivos**
+- `CLAUDE.md` — **modificado**: nueva sección "Git: los commits los hace solo el usuario".
+
+**Pendiente**
+- El `.gitignore` de la raíz sigue ignorando `vivado/` y no `proyecto_vivado/`: revisar cuando haya archivos generados.
+- Actualizar en `CLAUDE.md` la estructura de carpetas real (`tp_final/cli/`, `tp_final/docs/`, `tp_final/proyecto_vivado/`).
