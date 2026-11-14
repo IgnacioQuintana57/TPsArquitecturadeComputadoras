@@ -31,8 +31,8 @@ Resumen de lo pedido por la cátedra:
 | ¿Es necesario vaciar la memoria de datos al recargar un programa? | *(pendiente)* |
 | ¿Y los registros? | *(pendiente)* |
 | ¿Se necesita vaciar el pipeline? | *(pendiente)* |
-| ¿Y la memoria de programa? | *(pendiente)* |
-| ¿Qué pasa si en la memoria no hay instrucción de parada? | *(pendiente)* |
+| ¿Y la memoria de programa? | *(preliminar)* No hace falta vaciarla: el programa nuevo se escribe sobre el anterior y, como termina en HALT (validado por `program_checker`, D8), nunca se ejecutan los restos del programa viejo. Evita reenviar 256 palabras por UART en cada recarga. Se confirma al implementar la Debug Unit |
+| ¿Qué pasa si en la memoria no hay instrucción de parada? | *(preliminar)* Sin HALT el PC sigue de largo: ejecutaría restos del programa anterior o NOPs hasta dar la vuelta al final de la `imem` (el índice `pc[9:2]` es de 8 bits) y repetiría el programa en bucle. Para evitarlo, `program_checker` rechaza cualquier programa cuya última palabra no sea HALT y la Debug Unit se niega a ejecutarlo; además se prevé un límite de ciclos en modo continuo *(a decidir)* |
 | ¿Cuál es el camino crítico del sistema? | *(pendiente)* |
 | ¿Genera skew? ¿Qué consecuencias tiene? | *(pendiente)* |
 
@@ -86,6 +86,7 @@ Cada decisión indica qué se eligió, por qué y qué alternativas se descartar
 | D4 | Verilog-2001, puertos con prefijo `i_`/`o_`, constantes en `rv_defs.vh` | Convención heredada del TP2, compatible con las herramientas de Vivado sin depender de SystemVerilog | SystemVerilog (`logic`, `always_ff`) |
 | D6 | **La `imem` es un módulo aparte, no está dentro de `if_stage`**. `if_stage` solo maneja el PC; `cpu_core` conecta `o_pc[9:2]` a la dirección de lectura de la `imem` y su salida al latch `if_id` | Principio de diseño del grupo: cada módulo lo más chico posible, con una única responsabilidad. La `imem` necesita un puerto de escritura para que la Debug Unit cargue el programa por UART sin resintetizar; dentro de IF esos puertos solo "pasarían de largo" y mezclarían buscar la instrucción con cargar el programa. Separada, IF se prueba solo (sin memoria) y la `imem` se prueba sola | `imem` embebida en `if_stage`: un archivo menos, pero IF con puertos de escritura ajenos a su función |
 | D7 | En `if_stage` la prioridad es **reset > enable > salto > PC+4** | La pausa de la Debug Unit (`i_enable = 0`) debe congelar el PC aunque haya un salto pendiente; el reset debe funcionar siempre. Consecuencia: la `hazard_unit` no debe activar stall cuando hay un salto tomado (en ese caso la instrucción en ID es de camino equivocado y se descarta con flush) | Que el salto gane sobre `i_enable`: la pausa de la Debug Unit no congelaría el PC |
+| D8 | **La `imem` no valida nada** (guarda y entrega palabras). Un módulo aparte, `program_checker`, dentro de la Debug Unit, valida el programa **mientras se carga**: válido ⇔ 1 ≤ cantidad de palabras ≤ 256 **y la última palabra cargada es HALT (`0x00100073`)**. Si no es válido, la Debug Unit se niega a ejecutar (Run/Step) y responde un código de error a la PC | El programa puede llegar de un tercero, así que no alcanza con que valide el ensamblador propio: la FPGA tiene que defenderse sola. Se valida durante la carga (no antes) porque el procesador está frenado y escribir en la `imem` un programa que luego resulta inválido no causa daño; así se evita un buffer extra de 256 palabras. Se eligió "la última palabra es HALT" (y no "hay un HALT en cualquier posición") por ser más estricta y simple de explicar. Una responsabilidad por módulo (ver D6). El ensamblador sigue avisando también (defensa en dos capas) | Validar dentro de la `imem` (mezcla guardar con interpretar); validar solo en el ensamblador (no protege contra programas de terceros); validar antes de cargar con un buffer aparte (costo de un Block RAM sin beneficio); "HALT en cualquier posición" (tolera código inalcanzable después del HALT) |
 | D5 | *Abierta*: etapa donde se resuelve el branch (EX o ID) | Se decide al construir la unidad de riesgos. EX: más simple, 2 ciclos de flush por salto tomado. ID: 1 ciclo, pero complica el forwarding | — |
 
 *(Se irán agregando: codificación de HALT, endianness de UART, cómo se frena el pipeline sin tocar el clock, tamaño de memorias, reutilización de ALU y UART, etc.)*
@@ -94,7 +95,7 @@ Cada decisión indica qué se eligió, por qué y qué alternativas se descartar
 
 ### 4.1 Etapa IF
 
-`if_stage` mantiene el PC (registro de 32 bits, reset sincrónico a 0) y calcula el próximo valor: PC+4, el destino de un salto, o se queda quieto si `i_enable = 0`. La memoria de programa (`imem`) es un módulo aparte (D6). Prioridad: reset > enable > salto > PC+4 (D7). Detalle completo, interfaz y plan de pruebas: `docs/modulos/if_stage.md`. Estado: código y testbench escritos; **simulación pendiente**.
+`if_stage` mantiene el PC (registro de 32 bits, reset sincrónico a 0) y calcula el próximo valor: PC+4, el destino de un salto, o se queda quieto si `i_enable = 0`. La memoria de programa (`imem`) es un módulo aparte (D6). Prioridad: reset > enable > salto > PC+4 (D7). Detalle completo, interfaz y plan de pruebas: `docs/modulos/if_stage.md`. Estado: código y testbench escritos; simulación en XSim con las 8 pruebas (17 comprobaciones) superada (`TEST OK`).
 ### 4.2 Etapa ID — *(pendiente)*
 ### 4.3 Etapa EX — *(pendiente)*
 ### 4.4 Etapa MEM — *(pendiente)*
@@ -105,6 +106,11 @@ Cada decisión indica qué se eligió, por qué y qué alternativas se descartar
 
 ### 5.1 Protocolo de comandos UART — *(pendiente)*
 ### 5.2 Máquina de estados — *(pendiente)*
+### 5.3 Validación del programa cargado (`program_checker`)
+
+Decisión D8. El módulo observa las mismas palabras que se escriben en la `imem` (`i_we`, `i_wdata`) más las marcas de inicio y fin de carga que da la Debug Unit, y entrega `o_valid`. Programa válido ⇔ al menos 1 y como máximo 256 palabras, y la **última palabra cargada es HALT** (`0x00100073`). Si `o_valid = 0`, la Debug Unit no ejecuta y responde error.
+
+Límites reconocidos: el hardware garantiza la **presencia** de HALT al final, no que el programa **termine** (probarlo es imposible en general; por ejemplo un salto a sí mismo antes del HALT). La protección ante eso será un límite de ciclos en modo continuo *(a decidir al diseñar la Debug Unit)*. Detalles de señales: pendientes del protocolo UART, que todavía no está definido.
 
 ## 6. Software de PC
 

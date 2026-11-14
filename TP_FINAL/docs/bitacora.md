@@ -197,3 +197,68 @@ Formato de entrada: `## NNN — fecha — título`.
 **Pendiente**
 - Correr `tb_if_stage` en Vivado y anotar el resultado (esperado: `TEST OK`).
 - Escribir `imem.v` y `tb_imem.v`.
+
+---
+
+## 011 — 2026-11-14 — `if_stage` simulado: TEST OK
+
+**Comandos / verificación**
+- Tadeo corrió en Vivado 2026.1: `tb_if_stage` como top → *Run Behavioral Simulation* (XSim).
+- Resultado: 17 comprobaciones `ok` (8 pruebas: reset, avance, stall, salto, enable>salto, reset a mitad, reset>salto, reset>enable) y `TEST OK: if_stage paso todas las pruebas`. `$finish` a los 166 ns.
+- Compilación: solo se analizaron `if_stage.v` y `tb_if_stage.v`; los archivos vacíos no generaron errores.
+
+**Archivos**
+- `tp_final/docs/modulos/if_stage.md` — **modificado**: estado y resultado de la sección 4.
+- `tp_final/docs/informe_final.md` — **modificado**: estado de 4.1.
+
+**Observaciones**
+- Código y testbench los escribió la misma persona (Claude): el test valida que el código cumple lo acordado, no descubre pruebas que se nos hayan olvidado. Se sugirió mirar además las ondas.
+- El log mostró que el proyecto se había creado antes en `tp_final/vivado/` y luego se movió a `proyecto_vivado/` (aviso "Project file moved"); sin consecuencias.
+
+**Pendiente**
+- Escribir `imem.v` y `tb_imem.v`.
+
+---
+
+## 012 — 2026-11-14 — Qué se valida del programa y dónde (D8)
+
+**Discutido**
+- Al recargar un programa **no se borra la `imem`**: el programa nuevo pisa los cajones y, como termina en HALT, los restos del viejo nunca se ejecutan (evita reenviar 256 palabras por UART; a 19200 baud serían ≈0,5 s).
+- Se planteó quién valida (instrucciones, tamaño, HALT). Claude propuso que fuera el ensamblador; el usuario objetó con un buen argumento: **el programa puede venir de un tercero**, así que la FPGA debe defenderse sola.
+
+**Decidido** (D8, detalle en `informe_final.md` y `CLAUDE.md`)
+- La `imem` **no valida nada**.
+- Módulo aparte `program_checker`, parte de la Debug Unit. Valida **durante la carga** (el procesador está frenado, escribir un programa inválido no hace daño; evita un buffer extra de un Block RAM).
+- Programa válido ⇔ 1 ≤ palabras ≤ 256 **y la última palabra cargada es HALT** (`0x00100073`). Elegida sobre "HALT en cualquier posición" por ser más estricta y simple.
+- Si no es válido: la Debug Unit se niega a ejecutar y responde un código de error.
+- Defensa en dos capas: el ensamblador también avisa (errores claros), la FPGA se protege de lo que llegue de afuera.
+- Instrucciones desconocidas no se validan: ya se tratan como NOP.
+
+**Límite reconocido**: el hardware garantiza la presencia de HALT al final, no la terminación del programa (imposible de probar en general). Posible protección: límite de ciclos en modo continuo, **a decidir** al diseñar la Debug Unit.
+
+**Archivos**
+- `tp_final/docs/informe_final.md` — **modificado**: decisión D8; sección 5.3 (`program_checker`); respuestas preliminares a "¿vaciar la memoria de programa?" y "¿qué pasa sin instrucción de parada?".
+- `CLAUDE.md` — **modificado**: nueva decisión en "Decisiones tomadas".
+
+**Pendiente**
+- `program_checker.v` todavía no existe en el proyecto Vivado (se crea al diseñar la Debug Unit; el protocolo UART sigue sin definir).
+- Escribir `imem.v` y `tb_imem.v`.
+
+---
+
+## 013 — 2026-11-14 — `imem` y `tb_imem` escritos
+
+**Decidido**
+- `imem`: arreglo de 256 × 32, lectura asincrónica, escritura sincrónica con `i_we`, inicializada en cero con `initial`. Sin validación (D6, D8).
+
+**Archivos**
+- `.../sources_1/new/imem.v` — **escrito** (estaba vacío).
+- `.../sim_1/new/tb_imem.v` — **escrito**: 8 pruebas autochequeables (vacío, escribe/lee, asincrónica, `we=0`, vecinos, sobrescribir, extremos, sincrónica).
+- `tp_final/docs/modulos/if_stage.md` — **modificado**: estado y sección de pruebas de `imem`.
+
+**Comandos / verificación**
+- **No se simuló**: esta PC no tiene simulador. Se revisó a mano la temporización del testbench (cada chequeo ocurre entre flancos, la escritura se verifica antes y después del flanco).
+
+**Pendiente**
+- Correr `tb_imem` en Vivado (Set as Top → Run Behavioral Simulation) y anotar el resultado (esperado: `TEST OK`).
+- Siguiente módulo: latch `if_id` (o el bloque ID: `regfile`, `imm_gen`, `control_unit`), a definir.

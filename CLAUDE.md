@@ -81,6 +81,7 @@ tp_final/
 - **Se reutiliza la UART del TP2 sin cambios** dentro de la Debug Unit. Sin FIFO: se manda un byte, se espera `tx_done`, se manda el siguiente.
 - **`pc` y `valid` viajan por todos los latches** para que la interfaz muestre qué instrucción hay en cada etapa (`valid = 0` → burbuja).
 - **Memorias**: imem y dmem de **256 palabras × 32 bits**, lectura asincrónica; imem con puerto de escritura para la Debug Unit.
+- **La `imem` es un módulo aparte y no valida nada** (D6, D8). Un módulo `program_checker` en la Debug Unit valida el programa mientras se carga: válido ⇔ 1 a 256 palabras y **la última palabra cargada es HALT**; si no, la Debug Unit no ejecuta. Al recargar un programa **no se borra** la `imem`. Detalle en `tp_final/docs/informe_final.md`.
 - **Instrucción desconocida = NOP** (incluido `0x00000000`, que es lo que hay en memoria vacía).
 - **El protocolo de comandos de la Debug Unit todavía NO está definido.** No asumir uno; preguntar.
 

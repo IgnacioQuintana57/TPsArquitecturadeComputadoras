@@ -1,8 +1,8 @@
 # Etapa IF (Instruction Fetch)
 
-> Archivos fuente: `if_stage.v` (**escrito**) e `imem.v` (*pendiente*; módulos separados, ver D6) · Testbenches: `tb_if_stage.v` (**escrito**), `tb_imem.v` (*pendiente*)
+> Archivos fuente: `if_stage.v` (**escrito**) e `imem.v` (**escrito**; módulos separados, ver D6) · Testbenches: `tb_if_stage.v` (**escrito**), `tb_imem.v` (**escrito**)
 > Ubicación: `tp_final/proyecto_vivado/tp_final_arqui/tp_final_arqui.srcs/{sources_1,sim_1}/new/`
-> Estado: **`if_stage` escrito, simulación en Vivado pendiente**; `imem` sin escribir
+> Estado: **`if_stage` escrito y probado en simulación (TEST OK)**; `imem` escrita, **simulación de `tb_imem` pendiente**
 
 ## 1. Qué hace y por qué existe
 
@@ -114,7 +114,24 @@ Decisiones de IF (a confirmar al definir puertos):
 
 **Cómo correrlo en Vivado**: *Simulation Sources → `tb_if_stage` → clic derecho → Set as Top* → *Run Simulation → Run Behavioral Simulation*. Mirar la consola Tcl (debe terminar en `TEST OK`) y la ventana de ondas (`o_pc` en hexadecimal).
 
-**Resultado**: *(pendiente: todavía no se corrió en Vivado; esta PC no tiene simulador)*.
+**Resultado** (2026-11-14, Vivado 2026.1 / XSim, en la PC de Tadeo): **`TEST OK`**. Las 17 comprobaciones dieron `ok` y la simulación terminó con `$finish` a los 166 ns. En la compilación solo entraron `if_stage.v` y `tb_if_stage.v` (los archivos vacíos no molestan).
+
+### `imem` — `tb_imem.v`
+
+`imem.v`: 256 registros de 32 bits; lectura asincrónica (`assign o_rdata = mem[i_raddr]`), escritura sincrónica (`if (i_we)` en el flanco), inicializada en cero con un `initial`. No valida nada (D6, D8); al recargar un programa tampoco se borra.
+
+| # | Prueba | Esperado |
+|---|---|---|
+| 1 | Leer cajones 0, 100, 255 sin haber escrito | `0x00000000` (nunca X) |
+| 2 | Escribir `0xDEADBEEF` en el cajón 5 y leerlo | `0xDEADBEEF` |
+| 3 | Leer los cajones 7 y 8 cambiando solo `i_raddr`, sin flanco entre lecturas | cada uno devuelve su valor al instante (asincrónica) |
+| 4 | `i_we = 0` con otro dato en `i_wdata` | el cajón 5 no cambia |
+| 5 | Vecinos del cajón 5 (4 y 6) | siguen en 0 |
+| 6 | Sobrescribir el cajón 5 | queda el valor nuevo |
+| 7 | Cajones 0 y 255 | funcionan (bordes) |
+| 8 | `i_we=1` y dato listos, pero antes del flanco | todavía el valor viejo; tras el flanco, el nuevo (sincrónica) |
+
+**Resultado**: *(pendiente: escrito pero todavía no simulado)*. Para correrlo: `tb_imem` → clic derecho → *Set as Top* → *Run Behavioral Simulation*; debe terminar en `TEST OK: imem paso todas las pruebas`.
 
 ## 5. Errores comunes y problemas que tuvimos
 
